@@ -502,3 +502,29 @@ namespace RoguelikeGame
             Console.WriteLine();
         }
     }
+
+
+
+    // Главная программа
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+            bool playAgain = true;
+
+            while (playAgain)
+            {
+                Game game = new Game();
+                game.Start();
+
+                Console.WriteLine("\nХотите сыграть еще раз? (1 - да, 2 - нет)");
+                string input = Console.ReadLine();
+                playAgain = (input == "1");
+            }
+
+            Console.WriteLine("Спасибо за игру!");
+        }
+    }
+}
