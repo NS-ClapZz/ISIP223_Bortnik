@@ -415,3 +415,90 @@ namespace RoguelikeGame
             enemy.DisplayStats();
             Combat(enemy);
         }
+
+        private void OpenChest()
+        {
+            Console.WriteLine("Вы нашли сундук!");
+            Item item = GenerateRandomItem();
+            Console.WriteLine($"В сундуке: {item.GetStats()}");
+
+            if (item is Potion)
+            {
+                item.Use(player);
+            }
+            else if (item is Weapon weapon)
+            {
+                Console.WriteLine($"Ваше текущее оружие: {player.CurrentWeapon.GetStats()}");
+                Console.WriteLine("Хотите взять новое оружие? (1 - да, 2 - нет)");
+
+                if (GetYesNoInput())
+                {
+                    weapon.Use(player);
+                }
+                else
+                {
+                    Console.WriteLine("Вы оставили оружие в сундуке.");
+                }
+            }
+            else if (item is Armor armor)
+            {
+                Console.WriteLine($"Ваши текущие доспехи: {player.CurrentArmor.GetStats()}");
+                Console.WriteLine("Хотите взять новые доспехи? (1 - да, 2 - нет)");
+
+                if (GetYesNoInput())
+                {
+                    armor.Use(player);
+                }
+                else
+                {
+                    Console.WriteLine("Вы оставили доспехи в сундуке.");
+                }
+            }
+        }
+
+        private Item GenerateRandomItem()
+        {
+            int itemType = random.Next(3);
+            return itemType switch
+            {
+                0 => new Potion(),
+                1 => GenerateRandomWeapon(),
+                2 => GenerateRandomArmor(),
+                _ => new Potion()
+            };
+        }
+
+        private Weapon GenerateRandomWeapon()
+        {
+            string[] weaponNames = { "Стальной меч", "Острый кинжал", "Боевой топор", "Магический посох", "Лук охотника" };
+            string name = weaponNames[random.Next(weaponNames.Length)];
+            int attack = random.Next(5, 16); // Атака от 5 до 15
+            return new Weapon(name, attack);
+        }
+
+        private Armor GenerateRandomArmor()
+        {
+            string[] armorNames = { "Кожаная броня", "Кольчуга", "Латные доспехи", "Магический плащ", "Доспехи стража" };
+            string name = armorNames[random.Next(armorNames.Length)];
+            int defense = random.Next(2, 8); // Защита от 2 до 7
+            return new Armor(name, defense);
+        }
+
+        private bool GetYesNoInput()
+        {
+            while (true)
+            {
+                string input = Console.ReadLine();
+                if (input == "1") return true;
+                if (input == "2") return false;
+                Console.WriteLine("Неверный ввод. Введите 1 (да) или 2 (нет).");
+            }
+        }
+
+        private void ContinueGame()
+        {
+            Console.WriteLine("\nНажмите любую клавишу для продолжения...");
+            Console.ReadKey();
+            Console.WriteLine();
+        }
+    }
