@@ -160,3 +160,115 @@ namespace RoguelikeGame
             Console.WriteLine("=================");
         }
     }
+
+    // Базовый класс врага
+    public abstract class Enemy
+    {
+        public string Name { get; protected set; }
+        public int MaxHP { get; protected set; }
+        public int CurrentHP { get; protected set; }
+        public int Attack { get; protected set; }
+        public int Defense { get; protected set; }
+        public bool IsBoss { get; protected set; }
+
+        protected Random random;
+
+        public Enemy(string name, int maxHP, int attack, int defense, bool isBoss = false)
+        {
+            Name = name;
+            MaxHP = maxHP;
+            CurrentHP = maxHP;
+            Attack = attack;
+            Defense = defense;
+            IsBoss = isBoss;
+            random = new Random();
+        }
+
+        public virtual void TakeDamage(int damage)
+        {
+            CurrentHP -= damage;
+            if (CurrentHP < 0) CurrentHP = 0;
+        }
+
+        public bool IsAlive()
+        {
+            return CurrentHP > 0;
+        }
+
+        public abstract int PerformAttack(Player player);
+
+        public virtual void DisplayStats()
+        {
+            string bossPrefix = IsBoss ? "БОСС - " : "";
+            Console.WriteLine($"=== {bossPrefix}{Name.ToUpper()} ===");
+            Console.WriteLine($"Здоровье: {CurrentHP}/{MaxHP}");
+            Console.WriteLine($"Атака: {Attack}");
+            Console.WriteLine($"Защита: {Defense}");
+            Console.WriteLine("=================");
+        }
+    }
+
+    // Класс Гоблина
+    public class Goblin : Enemy
+    {
+        private double critChance;
+
+        public Goblin(bool isBoss = false) : base("Гоблин", 30, 8, 2, isBoss)
+        {
+            critChance = isBoss ? 0.3 : 0.2; // 20% базовый, 30% у босса
+        }
+
+        public override int PerformAttack(Player player)
+        {
+            bool isCrit = random.NextDouble() < critChance;
+            int damage = Attack;
+
+            if (isCrit)
+            {
+                damage = (int)(damage * 1.5);
+                Console.WriteLine($"{Name} наносит критический удар!");
+            }
+
+            Console.WriteLine($"{Name} атакует и наносит {damage} урона!");
+            return damage;
+        }
+    }
+
+    // Класс Скелета
+    public class Skeleton : Enemy
+    {
+        public Skeleton(bool isBoss = false) : base("Скелет", 25, 10, 3, isBoss) { }
+
+        public override int PerformAttack(Player player)
+        {
+            Console.WriteLine($"{Name} атакует и наносит {Attack} урона (игнорирует защиту)!");
+            return Attack; // Урон игнорирует защиту
+        }
+    }
+
+    // Класс Мага
+    public class Mage : Enemy
+    {
+        private double freezeChance;
+
+        public Mage(bool isBoss = false) : base("Маг", 20, 12, 1, isBoss)
+        {
+            freezeChance = isBoss ? 0.3 : 0.2; // 20% базовый, 30% у босса
+        }
+
+        public override int PerformAttack(Player player)
+        {
+            bool isFreeze = random.NextDouble() < freezeChance;
+            int damage = Attack;
+
+            Console.WriteLine($"{Name} атакует и наносит {damage} урона!");
+
+            if (isFreeze)
+            {
+                Console.WriteLine($"{Name} накладывает заморозку! Вы пропустите следующий ход.");
+                player.IsFrozen = true;
+            }
+
+            return damage;
+        }
+    }
