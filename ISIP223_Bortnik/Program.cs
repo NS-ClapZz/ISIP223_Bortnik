@@ -340,3 +340,78 @@ namespace RoguelikeGame
             return damage;
         }
     }
+
+    // Главный класс игры
+    public class Game
+    {
+        private Player player;
+        private Random random;
+        private int turnCount;
+
+        public Game()
+        {
+            player = new Player(100);
+            random = new Random();
+            turnCount = 0;
+        }
+
+        public void Start()
+        {
+            Console.WriteLine("Добро пожаловать в текстовую рогалик-игру!");
+            Console.WriteLine("Цель: выживать как можно дольше, побеждая врагов и собирая снаряжение.");
+            Console.WriteLine("Каждые 10 ходов вас ждет встреча с боссом!\n");
+
+            while (player.IsAlive())
+            {
+                turnCount++;
+                Console.WriteLine($"\n=== ХОД {turnCount} ===");
+                player.DisplayStats();
+
+                if (player.IsFrozen)
+                {
+                    Console.WriteLine("Вы заморожены и пропускаете ход!");
+                    player.IsFrozen = false;
+                    ContinueGame();
+                    continue;
+                }
+
+                // Случайное событие: 50% враг, 50% сундук
+                if (random.Next(2) == 0) // 0 - враг, 1 - сундук
+                {
+                    EncounterEnemy();
+                }
+                else
+                {
+                    OpenChest();
+                }
+
+                if (!player.IsAlive())
+                {
+                    Console.WriteLine("\n=== ИГРА ОКОНЧЕНА ===");
+                    Console.WriteLine($"Вы продержались {turnCount} ходов!");
+                    break;
+                }
+
+                ContinueGame();
+            }
+        }
+
+        private void EncounterEnemy()
+        {
+            Enemy enemy;
+
+            // Каждые 10 ходов - босс
+            if (turnCount % 10 == 0)
+            {
+                enemy = GenerateBoss();
+                Console.WriteLine($"!!! Появился босс: {enemy.Name} !!!");
+            }
+            else
+            {
+                enemy = GenerateRandomEnemy();
+                Console.WriteLine($"Появился враг: {enemy.Name}");
+            }
+
+            enemy.DisplayStats();
+            Combat(enemy);
+        }
