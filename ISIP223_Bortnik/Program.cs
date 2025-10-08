@@ -272,3 +272,71 @@ namespace RoguelikeGame
             return damage;
         }
     }
+
+    // Классы боссов
+    public class VVG : Goblin
+    {
+        public VVG() : base(true)
+        {
+            Name = "ВВГ";
+            MaxHP = (int)(MaxHP * 2.0);
+            CurrentHP = MaxHP;
+            Attack = (int)(Attack * 1.5);
+            Defense = (int)(Defense * 1.2);
+        }
+    }
+
+    public class Kovalsky : Skeleton
+    {
+        public Kovalsky() : base(true)
+        {
+            Name = "Ковальский";
+            MaxHP = (int)(MaxHP * 2.5);
+            CurrentHP = MaxHP;
+            Attack = (int)(Attack * 1.3);
+            Defense = (int)(Defense * 1.4);
+        }
+    }
+
+    public class ArchmageCPP : Mage
+    {
+        public ArchmageCPP() : base(true)
+        {
+            Name = "Архимаг C++";
+            MaxHP = (int)(MaxHP * 1.8);
+            CurrentHP = MaxHP;
+            Attack = (int)(Attack * 1.6);
+            Defense = (int)(Defense * 1.1);
+        }
+    }
+
+    public class PestovC : Skeleton
+    {
+        private double freezeChance;
+
+        public PestovC() : base(true)
+        {
+            Name = "Пестов С--";
+            MaxHP = (int)(MaxHP * 1.3);
+            CurrentHP = MaxHP;
+            Attack = (int)(Attack * 1.8);
+            Defense = (int)(Defense * 0.6);
+            freezeChance = 0.35; // 35% шанс заморозки
+        }
+
+        public override int PerformAttack(Player player)
+        {
+            bool isFreeze = random.NextDouble() < freezeChance;
+            int damage = Attack;
+
+            Console.WriteLine($"{Name} атакует и наносит {damage} урона (игнорирует защиту)!");
+
+            if (isFreeze)
+            {
+                Console.WriteLine($"{Name} накладывает заморозку! Вы пропустите следующий ход.");
+                player.IsFrozen = true;
+            }
+
+            return damage;
+        }
+    }
