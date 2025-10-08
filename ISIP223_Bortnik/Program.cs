@@ -416,6 +416,119 @@ namespace RoguelikeGame
             Combat(enemy);
         }
 
+        private Enemy GenerateRandomEnemy()
+        {
+            int enemyType = random.Next(3);
+            return enemyType switch
+            {
+                0 => new Goblin(),
+                1 => new Skeleton(),
+                2 => new Mage(),
+                _ => new Goblin()
+            };
+        }
+
+        private Enemy GenerateBoss()
+        {
+            int bossType = random.Next(4);
+            return bossType switch
+            {
+                0 => new VVG(),
+                1 => new Kovalsky(),
+                2 => new ArchmageCPP(),
+                3 => new PestovC(),
+                _ => new VVG()
+            };
+        }
+
+        private void Combat(Enemy enemy)
+        {
+            while (enemy.IsAlive() && player.IsAlive())
+            {
+                // Ход игрока
+                Console.WriteLine("\nВаш ход:");
+                Console.WriteLine("1 - Атаковать");
+                Console.WriteLine("2 - Защищаться");
+
+                CombatAction action = GetPlayerCombatAction();
+
+                if (action == CombatAction.Attack)
+                {
+                    int playerDamage = player.GetAttack();
+                    Console.WriteLine($"Вы атакуете и наносите {playerDamage} урона!");
+                    enemy.TakeDamage(playerDamage);
+                }
+                else // Defend
+                {
+                    Console.WriteLine("Вы готовитесь к защите...");
+                    // Защита обрабатывается при получении урона
+                }
+
+                if (!enemy.IsAlive())
+                {
+                    Console.WriteLine($"\nВы победили {enemy.Name}!");
+                    break;
+                }
+
+                // Ход врага
+                Console.WriteLine($"\nХод {enemy.Name}:");
+                int enemyDamage = enemy.PerformAttack(player);
+
+                // Обработка защиты игрока
+                if (action == CombatAction.Defend)
+                {
+                    if (random.NextDouble() < 0.4) // 40% шанс уклонения
+                    {
+                        Console.WriteLine("Вы успешно уклонились от атаки!");
+                        enemyDamage = 0;
+                    }
+                    else
+                    {
+                        // Блок: уменьшение урона на 70-100% от защиты
+                        double blockPercent = 0.7 + (random.NextDouble() * 0.3); // 70-100%
+                        int blockedDamage = (int)(player.GetDefense() * blockPercent);
+                        enemyDamage = Math.Max(0, enemyDamage - blockedDamage);
+                        Console.WriteLine($"Вы блокируете {blockedDamage} урона!");
+                    }
+                }
+
+                if (enemyDamage > 0)
+                {
+                    player.TakeDamage(enemyDamage);
+                    Console.WriteLine($"Вы получаете {enemyDamage} урона!");
+                }
+
+                if (!player.IsAlive())
+                {
+                    Console.WriteLine("Вы погибли в бою...");
+                    break;
+                }
+
+                Console.WriteLine($"\nСостояние после раунда:");
+                player.DisplayStats();
+                enemy.DisplayStats();
+
+                if (enemy.IsAlive() && player.IsAlive())
+                {
+                    ContinueGame();
+                }
+            }
+        }
+
+        private CombatAction GetPlayerCombatAction()
+        {
+            while (true)
+            {
+                Console.Write("Выберите действие (1-2): ");
+                string input = Console.ReadLine();
+
+                if (input == "1") return CombatAction.Attack;
+                if (input == "2") return CombatAction.Defend;
+
+                Console.WriteLine("Неверный ввод. Попробуйте снова.");
+            }
+        }
+
         private void OpenChest()
         {
             Console.WriteLine("Вы нашли сундук!");
@@ -502,8 +615,6 @@ namespace RoguelikeGame
             Console.WriteLine();
         }
     }
-
-
 
     // Главная программа
     class Program
